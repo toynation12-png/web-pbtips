@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PBTips Admin — Approval Tips</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css" />
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- ============================================ -->
+  <!-- LAYAR LOGIN (tampil kalau belum login)        -->
+  <!-- ============================================ -->
+  <div class="login-wrap" id="loginScreen">
+    <div class="login-box">
+      <div class="logo" style="text-align:center;">PB<span>Tips</span></div>
+      <div class="login-sub">Halaman Admin — login untuk lanjut</div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="admin@email.com" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" />
+      </div>
+
+      <div class="login-error" id="loginError"></div>
+
+      <button class="btn-login" id="loginBtn" onclick="handleLogin()">Masuk</button>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- DASHBOARD ADMIN (tampil setelah login)        -->
+  <!-- ============================================ -->
+  <div id="adminScreen" style="display:none;">
+
+    <div class="admin-header">
+      <div class="logo">PB<span>Tips</span> <span style="font-size:11px; color:var(--hint); font-weight:400;">Admin</span></div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span class="admin-email" id="adminEmail"></span>
+        <a href="index.html" style="font-size:12px; color:var(--blue); text-decoration:none;">Lihat web utama</a>
+        <button class="btn-logout" onclick="handleLogout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="admin-main">
+
+      <div class="status-tabs" id="statusTabs">
+        <button class="status-tab active" data-status="pending" onclick="setStatusFilter('pending', this)">
+          <i class="ti ti-clock"></i> Menunggu Review <span class="badge-count" id="countPending">0</span>
+        </button>
+        <button class="status-tab" data-status="approved" onclick="setStatusFilter('approved', this)">
+          <i class="ti ti-check"></i> Approved <span class="badge-count" id="countApproved">0</span>
+        </button>
+        <button class="status-tab" data-status="rejected" onclick="setStatusFilter('rejected', this)">
+          <i class="ti ti-x"></i> Rejected <span class="badge-count" id="countRejected">0</span>
+        </button>
+      </div>
+
+      <div id="queueList">
+        <!-- daftar tips digenerate otomatis lewat admin.js -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VIDEO MODAL (dipakai untuk preview video sebelum approve) -->
+  <div class="vmodal" id="vmodal" onclick="closeModal(event)">
+    <div class="vmodal-inner">
+      <div class="vmodal-close">
+        <button class="btn-vclose" onclick="closeVideoModal()">
+          <i class="ti ti-x" style="font-size:12px;"></i> Tutup
+        </button>
+      </div>
+      <div class="vmodal-frame">
+        <iframe id="vmodalFrame" allowfullscreen allow="autoplay"></iframe>
+      </div>
+      <div class="vmodal-info">
+        <div class="vmodal-title" id="vmodalTitle"></div>
+        <div class="vmodal-desc" id="vmodalDesc"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SDK Supabase + config + logic admin -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

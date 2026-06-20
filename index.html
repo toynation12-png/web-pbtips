@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PBTips — Spam Bom & Grenade Spot Point Blank Indonesia</title>
+
+  <!-- Font & icon dari luar (tetap pakai CDN, gratis & gak perlu di-download) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css" />
+
+  <!-- File CSS sendiri: taruh di folder yang sama dengan file ini -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">PB<span>Tips</span></div>
+    <div class="nav-links">
+      <button class="nav-link active">Semua Spot</button>
+      <button class="nav-link">Map Guide</button>
+    </div>
+    <button class="btn-submit-nav" onclick="toggleSubmit()">
+      <i class="ti ti-plus" style="font-size:14px;"></i> Submit Tips
+    </button>
+  </nav>
+
+  <!-- Banner kecil link ke halaman admin (boleh dihapus/disembunyikan kalau mau) -->
+  <div style="text-align:center; padding:6px; font-size:11px; color:var(--hint); background:var(--surface); border-bottom:1px solid var(--border);">
+    Kamu admin? <a href="admin.html" style="color:var(--blue);">Masuk ke halaman approval &rarr;</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag">Community Knowledge Base</div>
+    <h1>Kumpulan Spot<br><em>Spam Bom</em> Point Blank</h1>
+    <p>Dikurasi dari para player berpengalaman · Diverifikasi admin · Update setiap hari</p>
+  </section>
+
+  <!-- FILTER (tombol-tombolnya digenerate otomatis lewat script.js) -->
+  <div class="filter-bar" id="filterBar"></div>
+
+  <div class="main">
+
+    <!-- SUBMIT FORM -->
+    <div class="submit-section" id="submitSection">
+      <div class="submit-title">Submit Tips Kamu</div>
+      <div class="submit-sub">Tips akan direview admin sebelum dipublish. Biasanya 1–24 jam.</div>
+
+      <div class="form-grid">
+        <div class="field full">
+          <label>Judul Tips <span class="req">*</span></label>
+          <input type="text" id="tipTitle" placeholder="cth. Spam bom di map Abnormal pintu B" />
+        </div>
+        <div class="field">
+          <label>Map <span class="req">*</span></label>
+          <select id="tipMap">
+            <option value="">Pilih map...</option>
+            <option>Downtown</option>
+            <option>Luxville</option>
+            <option>Compound</option>
+            <option>Destroy</option>
+            <option>Drugport</option>
+            <option>Embassy</option>
+            <option>Forward</option>
+            <option>Lost Temple</option>
+            <option>Power Plant</option>
+            <option>Semua Map</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Link Video YouTube <span class="req">*</span></label>
+          <input type="text" id="tipVideo" placeholder="https://youtube.com/watch?v=..." oninput="previewVideo()" />
+          <div class="url-preview" id="videoPreview">Masukkan link YouTube</div>
+        </div>
+        <div class="field">
+          <label>Nama Kamu <span class="req">*</span></label>
+          <input type="text" id="tipAuthor" placeholder="cth. SnipeKing_ID" />
+        </div>
+        <div class="field full">
+          <label>Penjelasan Tips <span class="req">*</span></label>
+          <textarea id="tipDesc" placeholder="Jelasin strategi/tips kamu secara detail: posisi, timing, cara lempar, dll..."></textarea>
+        </div>
+      </div>
+
+      <div class="pending-note">
+        <i class="ti ti-clock"></i>
+        <p>Tips kamu akan masuk antrian review admin. Kalau sudah disetujui, akan langsung muncul di halaman utama. Kamu akan diberitahu via nama yang kamu cantumkan.</p>
+      </div>
+
+      <div class="submit-actions">
+        <button class="btn-cancel-form" onclick="toggleSubmit()">Batal</button>
+        <button class="btn-submit-form" onclick="submitTip()">
+          <i class="ti ti-send" style="font-size:14px;"></i>
+          Kirim untuk Review
+        </button>
+      </div>
+    </div>
+
+    <!-- LISTING (isinya digenerate otomatis lewat script.js dari data tipsData) -->
+    <div class="section-header">
+      <div class="section-title">Spot Spam Bom Terbaru</div>
+      <div class="section-count" id="tipCount">Menampilkan 6 tips</div>
+    </div>
+
+    <div class="tips-grid" id="tipsGrid"></div>
+
+  </div>
+
+  <!-- VIDEO MODAL -->
+  <div class="vmodal" id="vmodal" onclick="closeModal(event)">
+    <div class="vmodal-inner">
+      <div class="vmodal-close">
+        <button class="btn-vclose" onclick="closeVideoModal()">
+          <i class="ti ti-x" style="font-size:12px;"></i> Tutup
+        </button>
+      </div>
+      <div class="vmodal-frame">
+        <iframe id="vmodalFrame" allowfullscreen allow="autoplay"></iframe>
+      </div>
+      <div class="vmodal-info">
+        <div class="vmodal-title" id="vmodalTitle"></div>
+        <div class="vmodal-desc" id="vmodalDesc"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST (notif sukses kirim tips) -->
+  <div class="toast" id="toast">
+    <i class="ti ti-circle-check"></i>
+    <span>Tips berhasil dikirim! Menunggu review admin.</span>
+  </div>
+
+  <!-- SDK Supabase dari CDN (wajib dimuat sebelum config.js & script.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- config.js: isi URL & anon key Supabase kamu di file ini -->
+  <script src="config.js"></script>
+
+  <!-- File JS sendiri: taruh di folder yang sama, dipanggil paling akhir -->
+  <script src="script.js"></script>
+</body>
+</html>
