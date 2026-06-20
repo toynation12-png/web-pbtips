@@ -1,0 +1,195 @@
+/* ==========================================================
+   PBTips — map-guide.css
+   Style tambahan KHUSUS halaman Map Guide.
+   File ini di-load SETELAH style.css, jadi masih pakai semua
+   variabel warna (--bg, --card, --r-md, dst) dari style.css.
+   ========================================================== */
+
+/* ---------- MAP TABS ---------- */
+.map-tabs-wrap {
+  position: sticky; top: 58px; z-index: 90;
+  background: rgba(10,15,30,0.97);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.map-tabs-wrap::-webkit-scrollbar { display: none; }
+.map-tabs { display: inline-flex; gap: 2px; padding: 10px 0; }
+.map-tab {
+  font-size: 12px; font-weight: 500;
+  padding: 6px 16px; border-radius: var(--r-sm);
+  border: none; background: transparent;
+  color: var(--muted); cursor: pointer;
+  font-family: inherit; white-space: nowrap;
+  transition: all 0.12s;
+}
+.map-tab:hover { color: var(--text); background: var(--card); }
+.map-tab.active { background: var(--blue-dk); color: #e2eaff; }
+
+/* ---------- MAP SECTION ---------- */
+.map-section { display: none; }
+.map-section.active { display: block; }
+
+.map-header {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 20px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.map-icon {
+  width: 52px; height: 52px; border-radius: var(--r-lg);
+  background: var(--blue-dk); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+}
+.map-name { font-size: 22px; font-weight: 700; color: var(--text); }
+.map-tagline { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.map-difficulty {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  padding: 4px 12px; border-radius: 20px; white-space: nowrap;
+}
+.diff-easy   { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.diff-medium { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
+.diff-hard   { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+/* ---------- MAP PREVIEW (1 foto overview per map) ---------- */
+.map-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.map-preview img {
+  width: 100%; height: 100%; object-fit: cover;
+  cursor: zoom-in;
+  transition: transform 0.4s ease;
+}
+.map-preview:hover img { transform: scale(1.035); }
+.map-preview-corner {
+  position: absolute; width: 16px; height: 16px;
+  border-color: rgba(59,127,245,0.55);
+  pointer-events: none; z-index: 2;
+}
+.map-preview-corner.tl { top: 8px; left: 8px; border-top: 2px solid; border-left: 2px solid; }
+.map-preview-corner.tr { top: 8px; right: 8px; border-top: 2px solid; border-right: 2px solid; }
+.map-preview-corner.bl { bottom: 8px; left: 8px; border-bottom: 2px solid; border-left: 2px solid; }
+.map-preview-corner.br { bottom: 8px; right: 8px; border-bottom: 2px solid; border-right: 2px solid; }
+
+.map-preview-empty {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; text-align: center; padding: 16px;
+  background: repeating-linear-gradient(45deg, rgba(59,127,245,0.04) 0 10px, transparent 10px 20px);
+  border: 1px dashed var(--border2);
+  border-radius: var(--r-lg);
+}
+.map-preview-empty .big { font-size: 26px; opacity: 0.6; }
+.map-preview-empty strong { font-size: 12px; color: var(--muted); font-weight: 600; }
+.map-preview-empty span.hint { font-size: 11px; color: var(--hint); }
+
+/* ---------- SPOT CARDS ---------- */
+.spots-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--hint);
+  margin-bottom: 14px;
+}
+.spots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.spot-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 16px;
+  position: relative;
+  transition: border-color 0.15s;
+}
+.spot-card:hover { border-color: var(--blue); }
+/* efek reticle pas hover — nyambung sama tema pre-aim */
+.spot-card::before, .spot-card::after {
+  content: ''; position: absolute; width: 14px; height: 14px;
+  border-color: var(--blue); opacity: 0; pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.2s ease;
+}
+.spot-card::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; transform: translate(5px, 5px); }
+.spot-card::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; transform: translate(-5px, -5px); }
+.spot-card:hover::before, .spot-card:hover::after { opacity: 1; transform: translate(0, 0); }
+@media (prefers-reduced-motion: reduce) {
+  .spot-card::before, .spot-card::after { transition: none; }
+}
+.spot-number {
+  font-size: 10px; font-weight: 700; color: var(--blue);
+  background: rgba(59,127,245,0.1); border: 1px solid rgba(59,127,245,0.2);
+  padding: 2px 8px; border-radius: 20px;
+  display: inline-block; margin-bottom: 10px;
+}
+.spot-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.spot-desc  { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.spot-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: 20px;
+  margin-top: 10px;
+}
+.tag-ct   { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.tag-t    { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.tag-both { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+
+/* ---------- TIPS UMUM ---------- */
+.general-tips {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 20px;
+}
+.general-tips-title {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.tips-list { display: flex; flex-direction: column; gap: 10px; }
+.tip-item { display: flex; gap: 10px; align-items: flex-start; }
+.tip-bullet { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); flex-shrink: 0; margin-top: 6px; }
+.tip-text { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+/* ---------- EMPTY STATE (map belum diisi spot) ---------- */
+.guide-empty {
+  text-align: center; padding: 60px 20px;
+  color: var(--hint); font-size: 13px;
+}
+.guide-empty .big { font-size: 36px; margin-bottom: 12px; }
+.guide-empty strong { color: var(--text); display: block; margin-bottom: 6px; }
+
+/* ---------- LIGHTBOX (klik foto overview map) ---------- */
+.lightbox-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(4,6,14,0.92);
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px;
+  animation: lightbox-fade 0.15s ease;
+  cursor: zoom-out;
+}
+@keyframes lightbox-fade { from { opacity: 0; } to { opacity: 1; } }
+.lightbox-overlay img {
+  max-width: min(92vw, 1100px); max-height: 88vh;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.lightbox-close {
+  position: absolute; top: 20px; right: 24px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--card); border: 1px solid var(--border2);
+  color: var(--text); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px;
+}
+.lightbox-close:hover { border-color: var(--blue); }
+
+@media (max-width: 650px) {
+  .map-header { flex-wrap: wrap; }
+  .map-difficulty { margin-left: 0; }
+  .spots-grid { grid-template-columns: 1fr; }
+}

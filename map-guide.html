@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Map Guide — PBTips Point Blank Indonesia</title>
+  <meta name="description" content="Panduan pre-aim dan spot nembak asal per map Point Blank Indonesia. Hafal spotnya, bunuh musuhnya." />
+  <meta name="theme-color" content="#0f1117" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- File CSS sendiri (sama persis kayak index.html) -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="map-guide.css" />
+</head>
+<body>
+
+  <!-- NAV (sama persis kayak index.html, biar konsisten) -->
+  <nav>
+    <div class="logo">PB<span>Tips</span></div>
+    <div class="nav-links">
+      <a href="index.html" style="text-decoration:none;">
+        <button class="nav-link">Semua Spot</button>
+      </a>
+      <button class="nav-link active">Map Guide</button>
+    </div>
+    <a href="index.html" style="text-decoration:none;">
+      <button class="btn-submit-nav">
+        <span class="icon" style="font-size:14px;">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </span> Kembali
+      </button>
+    </a>
+  </nav>
+
+  <!-- HERO (pakai class .hero & .hero-tag yang udah ada di style.css) -->
+  <section class="hero">
+    <div class="hero-tag">Map Guide</div>
+    <h1>Spot <em>Pre-Aim</em> Per Map</h1>
+    <p>Hafal spotnya · Nembak duluan · Bunuh musuhnya</p>
+  </section>
+
+  <!-- MAP TABS -->
+  <div class="map-tabs-wrap">
+    <div class="map-tabs" id="mapTabs"></div>
+  </div>
+
+  <!-- KONTEN MAP -->
+  <div class="main" id="guideMain"></div>
+
+  <script src="map-data.js"></script>
+  <script>
+    // ============================================================
+    // RENDER — data map-nya ada di map-data.js, tinggal edit di sana.
+    // Bagian di bawah ini cuma logic render, gak perlu diutak-atik.
+    // ============================================================
+
+    function renderTabs() {
+      document.getElementById('mapTabs').innerHTML = MAPS.map((m, i) => `
+        <button class="map-tab ${i === 0 ? 'active' : ''}" data-slug="${m.slug}" onclick="switchMap('${m.slug}', this)">
+          ${m.emoji} ${m.name}
+        </button>
+      `).join('');
+    }
+
+    function renderContent() {
+      document.getElementById('guideMain').innerHTML = MAPS.map((m, i) => {
+        const hasSpots = m.spots.length > 0;
+        const hasTips  = m.generalTips.length > 0;
+
+        const previewHTML = m.image ? `
+          <div class="map-preview">
+            <img src="${m.image}" alt="Preview map ${m.name}" onclick="openLightbox('${m.image}')" loading="lazy">
+            <div class="map-preview-corner tl"></div>
+            <div class="map-preview-corner tr"></div>
+            <div class="map-preview-corner bl"></div>
+            <div class="map-preview-corner br"></div>
+          </div>
+        ` : `
+          <div class="map-preview">
+            <div class="map-preview-empty">
+              <div class="big">${m.emoji}</div>
+              <strong>Foto overview belum diisi</strong>
+              <span class="hint">Isi field <code>image</code> di data map "${m.name}" (map-data.js)</span>
+            </div>
+          </div>
+        `;
+
+        const spotsHTML = hasSpots ? `
+          <div class="spots-label">📍 Spot Pre-Aim & Nembak Asal</div>
+          <div class="spots-grid">
+            ${m.spots.map((s, idx) => `
+              <div class="spot-card">
+                <div class="spot-number">SPOT ${String(idx + 1).padStart(2, '0')}</div>
+                <div class="spot-title">${s.title}</div>
+                <div class="spot-desc">${s.desc}</div>
+                <span class="spot-tag ${SIDE_CLASS[s.side]}">${SIDE_LABEL[s.side]}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <div class="guide-empty">
+            <div class="big">🚧</div>
+            <strong>Spot belum diisi</strong>
+            Edit file <code>map-data.js</code> dan isi bagian <code>spots[]</code> untuk map ini.
+          </div>
+        `;
+
+        const tipsHTML = hasTips ? `
+          <div class="general-tips">
+            <div class="general-tips-title"><span>💡</span> Tips Umum ${m.name}</div>
+            <div class="tips-list">
+              ${m.generalTips.map(t => `
+                <div class="tip-item">
+                  <div class="tip-bullet"></div>
+                  <div class="tip-text">${t}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : '';
+
+        return `
+          <div class="map-section ${i === 0 ? 'active' : ''}" id="map-${m.slug}">
+            <div class="map-header">
+              <div class="map-icon">${m.emoji}</div>
+              <div>
+                <div class="map-name">${m.name}</div>
+                <div class="map-tagline">${m.tagline}</div>
+              </div>
+              <span class="map-difficulty ${DIFF_CLASS[m.difficulty]}">${DIFF_LABEL[m.difficulty]}</span>
+            </div>
+            ${previewHTML}
+            ${spotsHTML}
+            ${tipsHTML}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchMap(id, el) {
+      document.querySelectorAll('.map-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.map-tab').forEach(t => t.classList.remove('active'));
+      const section = document.getElementById('map-' + id);
+      if (section) section.classList.add('active');
+      el.classList.add('active');
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    // ============================================================
+    // LIGHTBOX — klik foto overview map buat liat versi full-size
+    // ============================================================
+    function openLightbox(src) {
+      closeLightbox();
+      const overlay = document.createElement('div');
+      overlay.className = 'lightbox-overlay';
+      overlay.id = 'lightboxOverlay';
+      overlay.onclick = (e) => { if (e.target === overlay) closeLightbox(); };
+      overlay.innerHTML = `
+        <button class="lightbox-close" onclick="closeLightbox()" aria-label="Tutup">✕</button>
+        <img src="${src}" alt="Map preview full size">
+      `;
+      document.body.appendChild(overlay);
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      const overlay = document.getElementById('lightboxOverlay');
+      if (overlay) overlay.remove();
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+    // Disable klik kanan & copy (konsisten sama index.html)
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('copy', e => e.preventDefault());
+
+    // Init
+    renderTabs();
+    renderContent();
+
+    // Kalau diakses dengan ?map=slug-map (misal ?map=broken-alley), langsung buka tab map itu
+    (function openMapFromQuery() {
+      const slug = new URLSearchParams(location.search).get('map');
+      if (!slug || !MAPS.some(m => m.slug === slug)) return;
+      const tab = document.querySelector(`.map-tab[data-slug="${slug}"]`);
+      if (tab) switchMap(slug, tab);
+    })();
+  </script>
+
+</body>
+</html>
