@@ -3,164 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PBTips — Spam Bom & Grenade Spot Point Blank Indonesia</title>
+  <title>PBTips Admin — Approval Tips</title>
 
-  <!-- SEO Meta (tambahan baru) -->
-  <meta name="description" content="Kumpulan spot spam bom dan grenade Point Blank Indonesia. Dikurasi dari player berpengalaman, diverifikasi admin, update setiap hari." />
-  <meta name="theme-color" content="#0f1117" />
-
-  <!-- DNS Prefetch untuk semua CDN external (tambahan baru, mempercepat koneksi) -->
-  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-  <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
-
-  <!-- Google Fonts: preconnect sudah benar, tinggal pastikan display=swap ada -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css" />
 
-  <!-- 
-    OPTIMASI UTAMA: Tabler Icons diganti inline SVG di script.js
-    CDN Tabler Icons webfont itu ~500KB+ dan blocking render!
-    Solusinya: ganti <i class="ti ti-xxx"> dengan SVG inline langsung di HTML/JS.
-    SVG yang dipakai di web ini hanya 4: ti-plus, ti-send, ti-clock, ti-x, ti-circle-check
-    Lihat di bagian <style> di bawah untuk definisi SVG-nya.
-  -->
-
-  <!-- File CSS sendiri -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Cloudflare Turnstile: dimuat async+defer, hanya saat form dibuka -->
-  <!-- DIUBAH: dipindah ke bawah body dengan defer agar tidak blocking -->
-
-  <!-- Inline critical CSS untuk icon SVG pengganti Tabler Icons -->
-  <style>
-    /* SVG Icon helper — pengganti tabler icons webfont */
-    .icon { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; }
-    .icon svg { width:1em; height:1em; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  </style>
+  <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <div class="logo">PB<span>Tips</span></div>
-    <div class="nav-links">
-      <button class="nav-link active">Semua Spot</button>
-      <a href="map-guide.html" style="text-decoration:none;">
-        <button class="nav-link">Map Guide</button>
-      </a>
-    </div>
-    <!-- Ganti <i class="ti ti-plus"> dengan SVG inline -->
-    <button class="btn-submit-nav" onclick="toggleSubmit()">
-      <span class="icon" style="font-size:14px;">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </span> Submit Tips
-    </button>
-  </nav>
+  <!-- ============================================ -->
+  <!-- LAYAR LOGIN (tampil kalau belum login)        -->
+  <!-- ============================================ -->
+  <div class="login-wrap" id="loginScreen">
+    <div class="login-box">
+      <div class="logo" style="text-align:center;">PB<span>Tips</span></div>
+      <div class="login-sub">Halaman Admin — login untuk lanjut</div>
 
-  <!-- Banner admin -->
-  <div style="text-align:center; padding:6px; font-size:11px; color:var(--hint); background:var(--surface); border-bottom:1px solid var(--border);">
-    Kamu admin? <a href="admin.html" style="color:var(--blue);">Masuk ke halaman approval &rarr;</a>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="admin@email.com" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" />
+      </div>
+
+      <div class="login-error" id="loginError"></div>
+
+      <button class="btn-login" id="loginBtn" onclick="handleLogin()">Masuk</button>
+    </div>
   </div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-tag">Community Knowledge Base</div>
-    <h1>Kumpulan Spot<br><em>Spam Bom</em> Point Blank</h1>
-    <p>Dikurasi dari para player berpengalaman · Diverifikasi admin · Update setiap hari</p>
-  </section>
+  <!-- ============================================ -->
+  <!-- DASHBOARD ADMIN (tampil setelah login)        -->
+  <!-- ============================================ -->
+  <div id="adminScreen" style="display:none;">
 
-  <!-- FILTER -->
-  <div class="filter-bar" id="filterBar"></div>
-
-  <div class="main">
-
-    <!-- SUBMIT FORM -->
-    <div class="submit-section" id="submitSection">
-      <div class="submit-title">Submit Tips Kamu</div>
-      <div class="submit-sub">Tips akan direview admin sebelum dipublish. Biasanya 1–24 jam.</div>
-
-      <div class="form-grid">
-        <div class="field full">
-          <label>Judul Tips <span class="req">*</span></label>
-          <input type="text" id="tipTitle" placeholder="cth. Spam bom di map Abnormal pintu B" />
-        </div>
-        <div class="field">
-          <label>Map <span class="req">*</span></label>
-          <select id="tipMap">
-            <option value="">Pilih map...</option>
-            <option>Downtown</option>
-            <option>Luxville</option>
-            <option>Blowcity</option>
-            <option>Sandstrom</option>
-            <option>Midtown</option>
-            <option>Safehouse</option>
-            <option>Provence</option>
-            <option>Broken Alley</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Link Video YouTube <span class="req">*</span></label>
-          <input type="text" id="tipVideo" placeholder="https://youtube.com/watch?v=..." oninput="previewVideo()" />
-          <div class="url-preview" id="videoPreview">Masukkan link YouTube</div>
-        </div>
-        <div class="field">
-          <label>Nama Kamu <span class="req">*</span></label>
-          <input type="text" id="tipAuthor" placeholder="cth. SnipeKing_ID" />
-        </div>
-        <div class="field full">
-          <label>Penjelasan Tips <span class="req">*</span></label>
-          <textarea id="tipDesc" placeholder="Jelasin strategi/tips kamu secara detail: posisi, timing, cara lempar, dll..."></textarea>
-        </div>
+    <div class="admin-header">
+      <div class="logo">PB<span>Tips</span> <span style="font-size:11px; color:var(--hint); font-weight:400;">Admin</span></div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span class="admin-email" id="adminEmail"></span>
+        <a href="index.html" style="font-size:12px; color:var(--blue); text-decoration:none;">Lihat web utama</a>
+        <button class="btn-logout" onclick="handleLogout()">Logout</button>
       </div>
+    </div>
 
-      <div class="pending-note">
-        <!-- Ganti ti-clock dengan SVG inline -->
-        <span class="icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </span>
-        <p>Tips kamu akan masuk antrian review admin. Kalau sudah disetujui, akan langsung muncul di halaman utama. Kamu akan diberitahu via nama yang kamu cantumkan.</p>
-      </div>
+    <div class="admin-main">
 
-      <div class="field full" style="margin-top:4px;">
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAADoBpEm7MTadXDQ3" data-theme="dark"></div>
-      </div>
-
-      <div class="submit-actions">
-        <button class="btn-cancel-form" onclick="toggleSubmit()">Batal</button>
-        <button class="btn-submit-form" onclick="submitTip()">
-          <!-- Ganti ti-send dengan SVG inline -->
-          <span class="icon" style="font-size:14px;">
-            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </span>
-          Kirim untuk Review
+      <div class="status-tabs" id="statusTabs">
+        <button class="status-tab active" data-status="pending" onclick="setStatusFilter('pending', this)">
+          <i class="ti ti-clock"></i> Menunggu Review <span class="badge-count" id="countPending">0</span>
+        </button>
+        <button class="status-tab" data-status="approved" onclick="setStatusFilter('approved', this)">
+          <i class="ti ti-check"></i> Approved <span class="badge-count" id="countApproved">0</span>
+        </button>
+        <button class="status-tab" data-status="rejected" onclick="setStatusFilter('rejected', this)">
+          <i class="ti ti-x"></i> Rejected <span class="badge-count" id="countRejected">0</span>
         </button>
       </div>
+
+      <div id="queueList">
+        <!-- daftar tips digenerate otomatis lewat admin.js -->
+      </div>
+
     </div>
-
-    <!-- LISTING -->
-    <div class="section-header">
-      <div class="section-title">Spot Spam Bom Terbaru</div>
-      <div class="section-count" id="tipCount">Menampilkan 6 tips</div>
-    </div>
-
-    <div class="tips-grid" id="tipsGrid"></div>
-
   </div>
 
-  <!-- VIDEO MODAL -->
+  <!-- VIDEO MODAL (dipakai untuk preview video sebelum approve) -->
   <div class="vmodal" id="vmodal" onclick="closeModal(event)">
     <div class="vmodal-inner">
       <div class="vmodal-close">
         <button class="btn-vclose" onclick="closeVideoModal()">
-          <!-- Ganti ti-x dengan SVG inline -->
-          <span class="icon" style="font-size:12px;">
-            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </span> Tutup
+          <i class="ti ti-x" style="font-size:12px;"></i> Tutup
         </button>
       </div>
       <div class="vmodal-frame">
-        <iframe id="vmodalFrame" allowfullscreen allow="autoplay" loading="lazy"></iframe>
+        <iframe id="vmodalFrame" allowfullscreen allow="autoplay"></iframe>
       </div>
       <div class="vmodal-info">
         <div class="vmodal-title" id="vmodalTitle"></div>
@@ -169,28 +91,9 @@
     </div>
   </div>
 
-  <!-- TOAST -->
-  <div class="toast" id="toast">
-    <!-- Ganti ti-circle-check dengan SVG inline -->
-    <span class="icon">
-      <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-    </span>
-    <span>Tips berhasil dikirim! Menunggu review admin.</span>
-  </div>
-
-  <!-- 
-    OPTIMASI: Semua script dipindah ke paling bawah dengan defer
-    Supabase dimuat duluan karena config.js & script.js butuh dia
-  -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="config.js" defer></script>
-  <script src="script.js" defer></script>
-
-  <!-- 
-    Cloudflare Turnstile: dipindah ke bawah body dengan defer
-    Tidak perlu dimuat di <head> karena form tidak langsung tampil
-  -->
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
+  <!-- SDK Supabase + config + logic admin -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
