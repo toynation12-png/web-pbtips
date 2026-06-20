@@ -14,8 +14,8 @@
    pakai "service_role" key di sini.
    ========================================================== */
 
-const SUPABASE_URL = "https://xxxxxxxxxxxx.supabase.co";
-const SUPABASE_ANON_KEY = "isi-anon-key-kamu-di-sini";
+const SUPABASE_URL = "https://zvplieisblasjoguepsy.supabase.cod";
+const SUPABASE_ANON_KEY = "sb_publishable_hHnzQrcT4mT9KaaU2eM7mg_8PpZPCjd";
 
 // Bikin satu koneksi Supabase yang dipakai bersama oleh
 // script.js (halaman utama) dan admin.js (halaman admin).
