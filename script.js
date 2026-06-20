@@ -1,16 +1,33 @@
 /* ==========================================================
    PBTips — script.js (halaman utama)
-   Sekarang data tips diambil dari Supabase, bukan array statis.
-   Hanya tips dengan status "approved" yang tampil di sini.
+   - Semua icon <i class="ti ti-xxx"> diganti SVG inline
+   - Disable klik kanan & text selection via JS
    ========================================================== */
 
-// Data tips yang sudah di-approve, disimpan di memori browser
-// setelah diambil dari Supabase. Dipakai ulang saat ganti filter.
+// SVG inline helper — pengganti Tabler Icons webfont
+const ICONS = {
+  play:       `<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+  heart:      `<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+  mapPin:     `<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  send:       `<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+  check:      `<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+};
+
+// ----------------------------------------------------------
+// DISABLE KLIK KANAN & COPY (keamanan konten)
+// ----------------------------------------------------------
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+
+// ----------------------------------------------------------
+// DATA & STATE
+// ----------------------------------------------------------
 let tipsData = [];
 let currentFilter = 'all';
 
 // ----------------------------------------------------------
-// 1. AMBIL TIPS YANG SUDAH APPROVED DARI SUPABASE
+// 1. AMBIL TIPS APPROVED DARI SUPABASE
 // ----------------------------------------------------------
 async function loadTips() {
   const grid = document.getElementById('tipsGrid');
@@ -34,14 +51,14 @@ async function loadTips() {
 }
 
 // ----------------------------------------------------------
-// 2. AMBIL DAFTAR MAP UNIK DARI tipsData
+// 2. MAP UNIK DARI tipsData
 // ----------------------------------------------------------
 function getMaps() {
   return [...new Set(tipsData.map(t => t.map))].sort();
 }
 
 // ----------------------------------------------------------
-// 3. RENDER TOMBOL FILTER MAP
+// 3. RENDER FILTER BAR
 // ----------------------------------------------------------
 function renderFilterBar() {
   const maps = getMaps();
@@ -59,7 +76,7 @@ function setFilter(map, el) {
 }
 
 // ----------------------------------------------------------
-// 4. RENDER GRID KARTU TIPS
+// 4. RENDER GRID KARTU TIPS (semua icon pakai SVG inline)
 // ----------------------------------------------------------
 function renderTips() {
   const filtered = currentFilter === 'all' ? tipsData : tipsData.filter(t => t.map === currentFilter);
@@ -74,10 +91,10 @@ function renderTips() {
     <div class="tip-card">
       <div class="video-wrap">
         <div class="video-placeholder" onclick="openVideoModal('${t.video_id}', '${t.title.replace(/'/g, "\\'")}', '${t.description.replace(/'/g, "\\'")}')">
-          <div class="play-btn"><i class="ti ti-player-play"></i></div>
+          <div class="play-btn">${ICONS.play}</div>
           <div class="video-label">Klik untuk tonton</div>
         </div>
-        <div class="map-badge"><i class="ti ti-map-pin" style="font-size:10px;"></i> ${t.map}</div>
+        <div class="map-badge">${ICONS.mapPin} ${t.map}</div>
         <div class="cat-badge cat-grenade">💣 Spam Bom</div>
       </div>
       <div class="card-body">
@@ -89,7 +106,7 @@ function renderTips() {
             <div class="author-name">${t.author}</div>
           </div>
           <div class="card-likes" onclick="likeTip(${t.id}, this)">
-            <i class="ti ti-heart"></i>
+            ${ICONS.heart}
             <span>${t.likes}</span>
           </div>
         </div>
@@ -98,7 +115,7 @@ function renderTips() {
   `).join('');
 }
 
-// Tambah jumlah like (disimpan permanen ke Supabase)
+// Like tip
 async function likeTip(id, el) {
   const num = el.querySelector('span');
   const newLikes = parseInt(num.textContent) + 1;
@@ -113,7 +130,6 @@ async function likeTip(id, el) {
 
   if (error) console.error('Gagal update likes:', error);
 
-  // sinkronkan juga ke data di memori biar konsisten saat re-render
   const tip = tipsData.find(t => t.id === id);
   if (tip) tip.likes = newLikes;
 }
@@ -138,7 +154,7 @@ function closeModal(e) {
 }
 
 // ----------------------------------------------------------
-// 6. FORM SUBMIT TIPS -> simpan ke Supabase, status "pending"
+// 6. FORM SUBMIT TIPS
 // ----------------------------------------------------------
 function toggleSubmit() {
   const sec = document.getElementById('submitSection');
@@ -174,7 +190,6 @@ async function submitTip() {
   if (!match) { alert('Link YouTube tidak valid!'); return; }
   const videoId = match[1];
 
-  // Cek captcha Cloudflare Turnstile sudah diselesaikan atau belum
   const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
   if (!captchaToken) {
     alert('Tolong selesaikan verifikasi captcha dulu sebelum kirim.');
@@ -187,17 +202,10 @@ async function submitTip() {
 
   const { error } = await supabaseClient
     .from('tips')
-    .insert({
-      title,
-      map,
-      description: desc,
-      author,
-      video_id: videoId,
-      status: 'pending' // wajib pending, ditegakkan juga oleh RLS policy di Supabase
-    });
+    .insert({ title, map, description: desc, author, video_id: videoId, status: 'pending' });
 
   submitBtn.disabled = false;
-  submitBtn.innerHTML = '<i class="ti ti-send" style="font-size:14px;"></i> Kirim untuk Review';
+  submitBtn.innerHTML = `<span class="icon" style="font-size:14px;">${ICONS.send}</span> Kirim untuk Review`;
 
   if (error) {
     console.error(error);
@@ -206,13 +214,10 @@ async function submitTip() {
   }
 
   document.getElementById('submitSection').classList.remove('show');
-  document.getElementById('tipTitle').value = '';
+  ['tipTitle','tipVideo','tipAuthor','tipDesc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('tipMap').value = '';
-  document.getElementById('tipVideo').value = '';
-  document.getElementById('tipAuthor').value = '';
-  document.getElementById('tipDesc').value = '';
   document.getElementById('videoPreview').textContent = 'Masukkan link YouTube';
-  if (window.turnstile) window.turnstile.reset(); // reset captcha biar siap dipakai lagi
+  if (window.turnstile) window.turnstile.reset();
 
   const toast = document.getElementById('toast');
   toast.classList.add('show');
@@ -220,6 +225,6 @@ async function submitTip() {
 }
 
 // ----------------------------------------------------------
-// 7. JALANKAN SAAT HALAMAN PERTAMA KALI DIBUKA
+// 7. INIT
 // ----------------------------------------------------------
 loadTips();
