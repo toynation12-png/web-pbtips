@@ -15,7 +15,7 @@
    ========================================================== */
 
 const SUPABASE_URL = "https://zvplieisblasjoguepsy.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_hHnzQrcT4mT9KaaU2eM7mg_8PpZPCjd";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2cGxpZWlzYmxhc2pvZ3VlcHN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4OTc1NjgsImV4cCI6MjA5NzQ3MzU2OH0.coaWbx1pQpKV15Hmv3xVARZVIsXdGOrF7t2MN0Vwy3g";
 
 // Bikin satu koneksi Supabase yang dipakai bersama oleh
 // script.js (halaman utama) dan admin.js (halaman admin).
