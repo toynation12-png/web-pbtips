@@ -174,6 +174,13 @@ async function submitTip() {
   if (!match) { alert('Link YouTube tidak valid!'); return; }
   const videoId = match[1];
 
+  // Cek captcha Cloudflare Turnstile sudah diselesaikan atau belum
+  const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+  if (!captchaToken) {
+    alert('Tolong selesaikan verifikasi captcha dulu sebelum kirim.');
+    return;
+  }
+
   const submitBtn = document.querySelector('.btn-submit-form');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Mengirim...';
@@ -205,6 +212,7 @@ async function submitTip() {
   document.getElementById('tipAuthor').value = '';
   document.getElementById('tipDesc').value = '';
   document.getElementById('videoPreview').textContent = 'Masukkan link YouTube';
+  if (window.turnstile) window.turnstile.reset(); // reset captcha biar siap dipakai lagi
 
   const toast = document.getElementById('toast');
   toast.classList.add('show');

@@ -118,6 +118,23 @@ git push -u origin main
 - Mau nambah admin lain? Tinggal tambahkan user baru di
   **Authentication → Users** di Supabase, mereka otomatis bisa login
   di `admin.html` dengan akses yang sama.
+- **Setelah enable RLS, role `anon` dan `authenticated` butuh GRANT
+  dasar juga**, tidak cukup hanya policy. Kalau bikin tabel baru lagi,
+  jangan lupa jalankan:
+  ```sql
+  grant select, insert on public.<nama_tabel> to anon;
+  grant select, update, delete on public.<nama_tabel> to authenticated;
+  grant usage on schema public to anon, authenticated;
+  ```
+- **Form submit dilindungi Cloudflare Turnstile** (captcha) untuk
+  menyaring bot/spam kasar. Site key-nya ada di `index.html`
+  (`data-sitekey="..."`) — aman ditaruh di frontend, sama seperti
+  anon key Supabase. Karena website ini statis (tanpa backend
+  sendiri), token captcha **tidak divalidasi ulang di server** —
+  ini cukup menyaring bot sederhana, tapi bukan proteksi 100% dari
+  bot yang lebih canggih. Untuk proteksi penuh, perlu tambahan
+  Supabase Edge Function yang memverifikasi token ke Cloudflare
+  sebelum insert diizinkan.
 
 ---
 

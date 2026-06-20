@@ -13,6 +13,9 @@
 
   <!-- File CSS sendiri: taruh di folder yang sama dengan file ini -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Cloudflare Turnstile: anti-spam/bot untuk form submit tips -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
@@ -89,6 +92,10 @@
       <div class="pending-note">
         <i class="ti ti-clock"></i>
         <p>Tips kamu akan masuk antrian review admin. Kalau sudah disetujui, akan langsung muncul di halaman utama. Kamu akan diberitahu via nama yang kamu cantumkan.</p>
+      </div>
+
+      <div class="field full" style="margin-top:4px;">
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAADoBpEm7MTadXDQ3" data-theme="dark"></div>
       </div>
 
       <div class="submit-actions">
