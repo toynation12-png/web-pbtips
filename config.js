@@ -14,7 +14,7 @@
    pakai "service_role" key di sini.
    ========================================================== */
 
-const SUPABASE_URL = "https://zvplieisblasjoguepsy.supabase.cod";
+const SUPABASE_URL = "https://zvplieisblasjoguepsy.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_hHnzQrcT4mT9KaaU2eM7mg_8PpZPCjd";
 
 // Bikin satu koneksi Supabase yang dipakai bersama oleh
